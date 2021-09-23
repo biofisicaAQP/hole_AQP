@@ -1,9 +1,8 @@
-import numpy as np
-import MDAnalysis as mda
-import MDAnalysis.transformations.translate
+import MDAnalysis.transformations.translate, os, numpy as np, MDAnalysis as mda
 from MDAnalysis.analysis import hole2
 from MDAnalysis.analysis import align
 from MDAnalysis.analysis.rms import rmsd
+
 
 def chain_traj_xtract(resid_range,chain):
     prot=u.select_atoms(resid_range)
@@ -52,4 +51,10 @@ for chain_num in range(0,chain_count):
     chain_traj_xtract("resid "+chain_range[chain_num],chain_name[chain_num])
 
 for chain_num in range(0,chain_count):
+    try:
+        os.remove("*old*")
+    except OSError:
+        print('Primer_Paso')
     run_hole_traj(chain_name[chain_num],ref_resid)
+
+
