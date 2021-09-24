@@ -41,23 +41,23 @@ res.tot <- data.frame(Zres=secuencia[1:(length(secuencia)-1)],
 rownames(res.tot) <- NULL
 
 # Profile Plot ------------------------------------------------------------
-# PlotLine <- ggplot(data=res.tot, aes(x=-Zres, y = Resumen.median, color=Proteina)) +
-#   geom_line(linetype=1,size=1)+
-#   xlab("Z coordinate (Å)") +
-#   ylab("Radius (Å)")+
-#   coord_cartesian(xlim = c(-30, 40), ylim = c(0, 4))+
-#   scale_x_continuous(breaks=seq(-40,40,5))+
-#   scale_y_continuous(breaks=seq(0,4,1))+
-#   theme_bw() + 
-#   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
-#   theme(legend.position="none")
-# 
-# ggsave(filename = paste(cadena,"_PoreProfile.png",sep = ""), plot = PlotLine, path = NULL,
-#        scale = 1,
-#        width = 25,
-#        height = 15,
-#        units = c("cm"),
-#        dpi = 600)
+PlotLine <- ggplot(data=res.tot, aes(x=-Zres, y = Resumen.median, color=Proteina)) +
+  geom_line(linetype=1,size=1)+
+  xlab("Z coordinate (Å)") +
+  ylab("Radius (Å)")+
+  coord_cartesian(xlim = c(-30, 40), ylim = c(0, 4))+
+  scale_x_continuous(breaks=seq(-40,40,5))+
+  scale_y_continuous(breaks=seq(0,4,1))+
+  theme_bw() + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  theme(legend.position="none")
+
+ggsave(filename = paste(cadena,"_PoreProfile.png",sep = ""), plot = PlotLine, path = NULL,
+       scale = 1,
+       width = 25,
+       height = 15,
+       units = c("cm"),
+       dpi = 600)
 
 # Heatmap plot ---------------------------------------------------------
   myColor = rev(RColorBrewer::brewer.pal(11, "Spectral"))

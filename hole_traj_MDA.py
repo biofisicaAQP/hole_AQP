@@ -52,7 +52,8 @@ for chain_num in range(0,chain_count):
 
 for chain_num in range(0,chain_count):
     try:
-        os.remove("*old*")
+        os.remove("*old")
+        os.remove("*sph")
     except OSError:
         print('Primer_Paso')
     run_hole_traj(chain_name[chain_num],ref_resid)
