@@ -15,5 +15,3 @@ echo -e 'trajout ./'$j'/'$j'_strip.nc' >> $j.cpptraj
 echo -e "run \nquit" >> $j.cpptraj
 cpptraj -i $j.cpptraj
 done
-Rscript watRpore_reloaded_4.0.R
- 
