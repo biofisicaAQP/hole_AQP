@@ -1,0 +1,19 @@
+#!/bin/bash
+for j in 030
+do
+echo -e "parm ../top.parm7
+trajin ./$j/5ns.nc
+trajin ./$j/10ns.nc
+center :1-220
+center :1-440
+center :1-660
+center :1-880
+center \":PC | :OL | :PA\"
+image center familiar
+strip \"!(:WAT&@O | :26,57,134,245,276,353,464,495,572,683,714,791&@CA)\"" > $j.cpptraj
+echo -e 'trajout ./'$j'/'$j'_strip.nc' >> $j.cpptraj
+echo -e "run \nquit" >> $j.cpptraj
+cpptraj -i $j.cpptraj
+done
+Rscript watRpore_reloaded_4.0.R
+ 
