@@ -24,7 +24,7 @@ fit f(x) './MSD_`echo $j`.txt' via a,b" > slope.txt
 echo -e "\n############# $(date) #############" >> Data.txt
 echo -e "######################## CHAIN ${j} #######################\n" >> Data.txt
 gnuplot slope.txt &>> Data_raw
-awk '{print $3*2.99003322259e-23/2e-12}' fit.log | grep -vE "0$">> Data.txt
+awk '{print $3*2.99003322259e-23/2e-12}' fit.log | grep -vE "^0$">> Data.txt
 
 # VERY IMPORTANT: the timestep of each frame should be taken in account when calculating pf.
 #In this example trajectory was written every 1 ps, so the molar volume of water is divided by 2e-12.
