@@ -7,14 +7,23 @@ import sys
 def open_dataset(filename):
     '''Lee el archivo a evaluar
         Pre: filename: archivo tipo netCDF4.
-        Post: atoms_coordinates: un arreglo 3D de la forma (frames, atoms, xyz) 
-              de los átomos a evaluar.
+        Post: fn: data del tipo netCDF.
     '''
     fn = nc.Dataset(filename)
-    atoms_coordinates = fn['coordinates']
-    return atoms_coordinates
+    
+    return fn
+def get_z_top_low(atoms_coordinates, atom_1, atom_2):
+    avg_atom1 = atoms_coordinates[:,atom_1,2].mean()
+    avg_atom2 = atoms_coordinates[:,atom_2,2].mean()
+    if avg_atom1 > avg_atom2:
+        top_atom = atom_1
+        low_atom = atom_2        
+    else:
+        top_atom = atom_2
+        low_atom = atom_1
+    return(top_atom, low_atom)
 
-def pore_traject(atoms_coordinates, pore_radius = 6):
+def pore_traject(atoms_coordinates,top_atom, low_atom, ref_xy_1_atom, ref_xy_2_atom, pore_radius = 6):
     '''
     Calcula la trayectoria del poro  
        
@@ -24,10 +33,10 @@ def pore_traject(atoms_coordinates, pore_radius = 6):
     '''
 
     # Coordenadas de los átomos de referencia (3)
-    a_top = atoms_coordinates[:,0,2]
-    a_low = atoms_coordinates[:,2,2]
-    a1_xy = atoms_coordinates[:,1,0:2]
-    a2_xy = atoms_coordinates[:,2,0:2]
+    a_top = atoms_coordinates[:,top_atom,2]
+    a_low = atoms_coordinates[:,low_atom,2]
+    a1_xy = atoms_coordinates[:,ref_xy_1_atom,0:2]
+    a2_xy = atoms_coordinates[:,ref_xy_2_atom,0:2]
 
     # Se llama a la clase pore y se determina la trayectoria del 
     # poro a partir de las coordenadas de los átomos de referencia y el radio.
@@ -50,28 +59,48 @@ def hacer_comparacion_un_solo_saque(atoms_coordinates, frame, atom_list,Pore):
     distance_to_center = (((atom_coord[:,0:2] - pore_cylinder.xy_center)**2).sum(axis = 1))**(1/2)
     condition_1 = distance_to_center < pore_cylinder.radius
     condition_2 = (pore_cylinder.low < atom_coord[:,2]) & (atom_coord[:,2] < pore_cylinder.top)
-    true_list = np.where((condition_1 & condition_2) == True)
-    return atom_list[true_list]
+    true_list = np.where((condition_1 & condition_2) == True)[0].tolist()
+    return [atom_list[i] for i in true_list]
 
+def is_in_cylinder(atoms_coordinates, frame, atom, Pore):
+    pore_cylinder = Pore[frame]
+    atom_coord = atoms_coordinates[frame,atom,:]
+    distance_to_center = (((atom_coord[0:2] - pore_cylinder.xy_center)**2).sum(axis = 0))**(1/2)
+    condition_1 = distance_to_center < pore_cylinder.radius
+    condition_2 = (pore_cylinder.low < atom_coord[2]) & (atom_coord[2] < pore_cylinder.top)
+    return (condition_1 & condition_2)
+   
 
-
-filename = 'trajectory.nc'
-with nc.Dataset(filename) as dataset:
-    atoms_coordinates = dataset['coordinates']
-
-Pore = pore_traject(atoms_coordinates)
-atom_list = [] #TODO
+filename = 'AOX_ref_atoms.nc'
+ref_z_1_atom = 0
+ref_z_2_atom = 1
+ref_xy_1_atom = 0
+ref_xy_2_atom = 2
+data = open_dataset(filename)
+atoms_coordinates = data['coordinates']
+total_atoms = len(data.dimensions['atom'])
+total_frames = len(data.dimensions['frame'])
+top_atom, low_atom = get_z_top_low(atoms_coordinates, ref_z_1_atom, ref_z_2_atom)
+first_non_ref_atom = 3
+Pore = pore_traject(atoms_coordinates, top_atom, low_atom, ref_xy_1_atom, ref_xy_2_atom)
+atom_list = list(range(first_non_ref_atom,total_atoms))
 
 compendio_atomos = []
 for n_frame, frame in enumerate(atoms_coordinates):
     lista_true_atomos = hacer_comparacion_un_solo_saque(atoms_coordinates, n_frame, atom_list, Pore)
-    compendio_atomos.append(lista_true_atomos)
+    compendio_atomos.extend(lista_true_atomos)
+compendio_atomos = list(set(compendio_atomos))
+
+for atom in compendio_atomos:
+    for frame in range(1,total_frames):
+        is_in_cylinder_prev = is_in_cylinder(atoms_coordinates, frame-1,atom,Pore)
+        print(is_in_cylinder_prev)
 
 
 
-n_eventos = 0
+#n_eventos = 0
 
-#buscar átomos que pasan por el poro alguna vez: hacer lista atom_pore_list
+#buscar átomos que pasan por el poro alguna vez: hacer lista atom_pore_list DONE
 
 #iterar por la lista de átomos...
     #iterar por cada frame, desde el 1...
