@@ -60,7 +60,8 @@ def hacer_comparacion_un_solo_saque(atoms_coordinates, frame, atom_list,Pore):
     condition_1 = distance_to_center < pore_cylinder.radius
     condition_2 = (pore_cylinder.low < atom_coord[:,2]) & (atom_coord[:,2] < pore_cylinder.top)
     true_list = np.where((condition_1 & condition_2) == True)[0].tolist()
-    return [atom_list[i] for i in true_list]
+    filtered_atom_list = [atom_list[i] for i in true_list]
+    return filtered_atom_list
 
 def is_in_cylinder(atoms_coordinates, frame, atom, Pore):
     pore_cylinder = Pore[frame]
@@ -69,7 +70,23 @@ def is_in_cylinder(atoms_coordinates, frame, atom, Pore):
     condition_1 = distance_to_center < pore_cylinder.radius
     condition_2 = (pore_cylinder.low < atom_coord[2]) & (atom_coord[2] < pore_cylinder.top)
     return (condition_1 & condition_2)
-   
+
+def dist_interatom(atom_coordinates, frame, atom_1 ,atom_2):
+    coord_atom_1 = atom_coordinates[frame, atom_1,:]
+    coord_atom_2 = atom_coordinates[frame, atom_2,:]
+    distancia = np.sqrt((coord_atom_1[0]-coord_atom_2[0])**2+
+                            (coord_atom_1[1]-coord_atom_2[1])**2+
+                            (coord_atom_1[2]-coord_atom_2[2])**2) 
+    return distancia
+
+def por_donde_entro(atoms_coordinates, frame, top_atom, low_atom, atom):
+    dist_to_low = dist_interatom(atoms_coordinates, frame, low_atom, atom)
+    dist_to_top = dist_interatom(atoms_coordinates, frame, top_atom, atom)
+    if dist_to_low < dist_to_top:
+        return low_atom
+    else:
+        return top_atom
+
 
 filename = 'AOX_ref_atoms.nc'
 ref_z_1_atom = 0
@@ -94,7 +111,12 @@ compendio_atomos = list(set(compendio_atomos))
 for atom in compendio_atomos:
     for frame in range(1,total_frames):
         is_in_cylinder_prev = is_in_cylinder(atoms_coordinates, frame-1,atom,Pore)
-        print(is_in_cylinder_prev)
+        is_in_cylinder_now = is_in_cylinder(atoms_coordinates, frame, atom, Pore)
+
+        if not is_in_cylinder_prev and is_in_cylinder_now:
+            ingreso = por_donde_entro(atoms_coordinates, frame, top_atom, low_atom, atom)
+
+
 
 
 
@@ -102,14 +124,14 @@ for atom in compendio_atomos:
 
 #buscar átomos que pasan por el poro alguna vez: hacer lista atom_pore_list DONE
 
-#iterar por la lista de átomos...
-    #iterar por cada frame, desde el 1...
-        #evaluar si en el frame n-1 está dentro del cilindro(booleano)
-        #evaluar si en el frame n está dentro del cilindro (booleano)
+#iterar por la lista de átomos... DONE
+    #iterar por cada frame, desde el 1... DONE
+        #evaluar si en el frame n-1 está dentro del cilindro(booleano) DONE
+        #evaluar si en el frame n está dentro del cilindro (booleano) DONE
 
-            #si en n-1 no estaba y en el n está dentro del cilindro:
-            #evaluar si está más cerca del top o del bottom (ver por donde entró)
-            #almacenar tag del átomo de entrada
+            #si en n-1 no estaba y en el n está dentro del cilindro: DONE
+            #evaluar si está más cerca del top o del bottom (ver por donde entró) DONE
+            #almacenar tag del átomo de entrada DONE
 
             #si en n no está en el cilindro:
             #evaluar si está más cerca del top o del bottom (ver por donde salió)
