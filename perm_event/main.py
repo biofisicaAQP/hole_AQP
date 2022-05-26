@@ -112,6 +112,8 @@ compendio_atomos = list(set(compendio_atomos))
 for atom in compendio_atomos:
     entro = False
     for frame in range(1,total_frames):
+        if frame % 100 == 0:
+            print('Atom:', atom, ' Frame:', frame)
         is_in_cylinder_prev = is_in_cylinder(atoms_coordinates, frame-1,atom,Pore)
         is_in_cylinder_now = is_in_cylinder(atoms_coordinates, frame, atom, Pore)
 
