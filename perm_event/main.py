@@ -128,6 +128,7 @@ for atom in compendio_atomos:
             salida = por_donde_pasa(atoms_coordinates, frame, top_atom, low_atom, atom)
             if ingreso != salida:
                 n_eventos += 1
+            print(n_eventos)
             entro = False
 print(n_eventos)
 
