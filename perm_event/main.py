@@ -79,7 +79,7 @@ def dist_interatom(atom_coordinates, frame, atom_1 ,atom_2):
                             (coord_atom_1[2]-coord_atom_2[2])**2) 
     return distancia
 
-def por_donde_entro(atoms_coordinates, frame, top_atom, low_atom, atom):
+def por_donde_pasa(atoms_coordinates, frame, top_atom, low_atom, atom):
     dist_to_low = dist_interatom(atoms_coordinates, frame, low_atom, atom)
     dist_to_top = dist_interatom(atoms_coordinates, frame, top_atom, atom)
     if dist_to_low < dist_to_top:
@@ -101,6 +101,7 @@ top_atom, low_atom = get_z_top_low(atoms_coordinates, ref_z_1_atom, ref_z_2_atom
 first_non_ref_atom = 3
 Pore = pore_traject(atoms_coordinates, top_atom, low_atom, ref_xy_1_atom, ref_xy_2_atom)
 atom_list = list(range(first_non_ref_atom,total_atoms))
+n_eventos = 0
 
 compendio_atomos = []
 for n_frame, frame in enumerate(atoms_coordinates):
@@ -109,12 +110,24 @@ for n_frame, frame in enumerate(atoms_coordinates):
 compendio_atomos = list(set(compendio_atomos))
 
 for atom in compendio_atomos:
+    entro = False
     for frame in range(1,total_frames):
         is_in_cylinder_prev = is_in_cylinder(atoms_coordinates, frame-1,atom,Pore)
         is_in_cylinder_now = is_in_cylinder(atoms_coordinates, frame, atom, Pore)
 
-        if not is_in_cylinder_prev and is_in_cylinder_now:
-            ingreso = por_donde_entro(atoms_coordinates, frame, top_atom, low_atom, atom)
+        if is_in_cylinder_now and is_in_cylinder_prev:
+            continue
+
+        if is_in_cylinder_now and not is_in_cylinder_prev:
+            ingreso = por_donde_pasa(atoms_coordinates, frame, top_atom, low_atom, atom)
+            entro = True
+        
+        if is_in_cylinder_prev and not is_in_cylinder_now and entro:
+            salida = por_donde_pasa(atoms_coordinates, frame, top_atom, low_atom, atom)
+            if ingreso != salida:
+                n_eventos += 1
+            entro = False
+print(n_eventos)
 
 
 

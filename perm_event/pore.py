@@ -33,26 +33,3 @@ class Pore_cylinder_traj(Pore_cylinder):
             self.xy_2[frame],
             self.radius
         )
-
-def pore_traject(atoms_coordinates, pore_radius = 6):
-    '''
-    Calcula la trayectoria del poro  
-       
-       Pre: atoms_coordinates: arreglo 3D de la forma (frames, atoms, xyz_coordinates)
-            pore_radius: un entero (radio del cilindro)
-       Pos: Devuelve un objeto (poro) a partir de los átomos de referencia.
-    '''
-
-    # Coordenadas de los átomos de referencia (3)
-    a_top = atoms_coordinates[:,0,2]
-    a_low = atoms_coordinates[:,2,2]
-    a1_xy = atoms_coordinates[:,1,0:2]
-    a2_xy = atoms_coordinates[:,2,0:2]
-
-    # Se llama a la clase pore y se determina la trayectoria del 
-    # poro a partir de las coordenadas de los átomos de referencia y el radio.
-
-    Pore = pore.Pore_cylinder_traj(a_top,a_low,a1_xy,a2_xy,pore_radius)      #cosa a mejorar: poder elegir 
-                                                                             #los átomos de referencia.
-                                                                        
-    return Pore
