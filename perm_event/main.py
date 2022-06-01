@@ -87,6 +87,15 @@ def por_donde_pasa(atoms_coordinates, frame, top_atom, low_atom, atom):
     else:
         return top_atom
 
+def atoms_inside_pore(atoms_coordinates):
+    compendio_atomos = []
+    for n_frame, frame in enumerate(atoms_coordinates):
+        if frame % 100 == 0:
+            print(frame)
+        lista_true_atomos = hacer_comparacion_un_solo_saque(atoms_coordinates, n_frame, atom_list, Pore)
+        compendio_atomos.extend(lista_true_atomos)
+    compendio_atomos = list(set(compendio_atomos))
+    return compendio_atomos
 
 filename = 'AOX_ref_atoms.nc'
 ref_z_1_atom = 0
@@ -103,11 +112,7 @@ Pore = pore_traject(atoms_coordinates, top_atom, low_atom, ref_xy_1_atom, ref_xy
 atom_list = list(range(first_non_ref_atom,total_atoms))
 n_eventos = 0
 
-compendio_atomos = []
-for n_frame, frame in enumerate(atoms_coordinates):
-    lista_true_atomos = hacer_comparacion_un_solo_saque(atoms_coordinates, n_frame, atom_list, Pore)
-    compendio_atomos.extend(lista_true_atomos)
-compendio_atomos = list(set(compendio_atomos))
+compendio_atomos = atoms_inside_pore(atoms_coordinates)
 
 for atom in compendio_atomos:
     entro = False
