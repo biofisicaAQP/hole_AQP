@@ -101,8 +101,8 @@ def por_donde_pasa(atoms_coordinates, frame, top_atom, low_atom, atom):
 def atoms_inside_pore(atoms_coordinates, atom_list, Pore):
     compendio_atomos = []
     for n_frame, frame in enumerate(atoms_coordinates):
-        if frame % 100 == 0:
-            print(frame)
+        if n_frame % 100 == 0:
+            print(n_frame)
         lista_true_atomos = hacer_comparacion_un_solo_saque(atoms_coordinates, n_frame, atom_list, Pore)
         compendio_atomos.extend(lista_true_atomos)
     compendio_atomos = list(set(compendio_atomos))
