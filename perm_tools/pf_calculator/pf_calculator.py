@@ -20,5 +20,5 @@ Pore = pore_traject(atoms_coordinates, top_atom, low_atom, ref_xy_1_atom, ref_xy
 atom_list = list(range(first_non_ref_atom,total_atoms))
 
 compendio_atomos = atoms_inside_pore(atoms_coordinates, atom_list, Pore)
-print(compendio_atomos)
+
 
