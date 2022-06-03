@@ -3,7 +3,7 @@ from lib.classes import *
 from lib.functions import *
 
 
-filename = 'name.nc'
+filename = 'perm.nc'
 
 ref_z_1_atom = 0
 ref_z_2_atom = 1
@@ -19,5 +19,5 @@ first_non_ref_atom = 3
 Pore = pore_traject(atoms_coordinates, top_atom, low_atom, ref_xy_1_atom, ref_xy_2_atom)
 atom_list = list(range(first_non_ref_atom,total_atoms))
 
-compendio_atomos = atoms_inside_pore(atoms_coordinates)
+compendio_atomos = atoms_inside_pore(atoms_coordinates, atom_list, Pore)
 
