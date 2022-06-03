@@ -1,4 +1,4 @@
-from ...hole_AQP.perm_event import *
+from ..perm_event import pore
 
 
 filename = 'name.nc'
