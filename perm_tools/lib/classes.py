@@ -18,6 +18,7 @@ class Pore_cylinder:
         self.xy_2 = xy_2
         self.xy_center = (self.xy_1+self.xy_2)/2
         self.radius = radius
+        self.length = abs(self.top - self.low)
 
 class Pore_cylinder_traj(Pore_cylinder):
     '''Se accede a las coordenadas del poro con múltiples frames

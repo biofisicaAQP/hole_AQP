@@ -2,6 +2,7 @@ from matplotlib.pyplot import axis
 import netCDF4 as nc
 import numpy as np
 from lib import classes
+from sklearn import linear_model
 
 
 
@@ -48,11 +49,35 @@ def pore_traject(atoms_coordinates,top_atom, low_atom, ref_xy_1_atom, ref_xy_2_a
     Pore = classes.Pore_cylinder_traj(a_top,a_low,a1_xy,a2_xy,pore_radius)                                                                        
     return Pore
 
-def descartar_dz(atoms_dz_array, pore):
-    distance_to_center = (((atoms_dz_array[:,:,0:2] - np.expand_dims(pore.xy_center[0:-1], axis=1))**2).sum(axis = 2))**(1/2)
-    condition_1 = (pore.low[0:-1] < atoms_dz_array[:,:,2].T) & (atoms_dz_array[:,:,2].T < pore.top[0:-1]).T
-    condition_2 = (distance_to_center < pore.radius).T
-    atoms_dz_array[:,:,3][(condition_1 & condition_2)] = 0
+
+def regresion_lineal(columna_x, columna_y):
+    ajuste = linear_model.LinearRegression()
+    ajuste.fit(columna_x.reshape((-1,1)),columna_y)
+    return ajuste.coef_[0]
+
+
+def compute_msd(n_array, fragments):
+    splitted_array = np.array(np.split(n_array, fragments))
+    split_to_zero = (splitted_array.T-splitted_array[:,0]).T
+    msd = np.mean(split_to_zero**2, axis = 0)
+    return msd
+
+
+def compute_n(atoms_dz_array, pore):
+    dn_array = (atoms_dz_array[:,:,3].sum(axis = 1))/pore.length[1:]
+    n_array = np.cumsum(dn_array)
+    return n_array
+
+
+def drop_dz(atoms_coordinates, atoms_dz_array, pore):
+    copy_dz_array = atoms_dz_array.copy()
+    distance_to_center = (((atoms_coordinates[:,:,0:2] - np.expand_dims(pore.xy_center, axis=1))**2).sum(axis = 2))**(1/2)
+    condition_1 = ((pore.low < atoms_coordinates[:,:,2].T) & (atoms_coordinates[:,:,2].T < pore.top)).T
+    condition_2 = (distance_to_center < pore.radius)
+    copy_dz_array[:,:,3][~(condition_1[1:] & condition_2[1:] | condition_1[:-1] & condition_2[:-1])] = 0
+    return copy_dz_array
+
+
 def hacer_comparacion_un_solo_saque(atoms_coordinates, frame, atom_list,Pore):
     '''Devuelve una lista de átomos que se encuentran dentro del cilindro
     en un frame determinado
@@ -105,7 +130,7 @@ def por_donde_pasa(atoms_coordinates, frame, top_atom, low_atom, atom):
 def atoms_inside_pore(atoms_coordinates, atom_list, Pore):
     compendio_atomos = []
     for n_frame, frame in enumerate(atoms_coordinates):
-        if n_frame % 100 == 0:
+        if n_frame % 500 == 0:
             print(n_frame)
         lista_true_atomos = hacer_comparacion_un_solo_saque(atoms_coordinates, n_frame, atom_list, Pore)
         compendio_atomos.extend(lista_true_atomos)

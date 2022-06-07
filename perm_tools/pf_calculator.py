@@ -2,13 +2,14 @@ from lib.classes import *
 from lib.functions import *
 import matplotlib.pyplot as plt
 
-
 filename = 'perm.nc'
-
-ref_z_1_atom = 0
-ref_z_2_atom = 1
-ref_xy_1_atom = 0
-ref_xy_2_atom = 2
+timestep = 1e-12 #in seconds
+chain_id = 3
+n_ref_atoms = 3
+ref_z_1_atom = 0 + chain_id*n_ref_atoms
+ref_z_2_atom = 1 + chain_id*n_ref_atoms
+ref_xy_1_atom = 0 + chain_id*n_ref_atoms
+ref_xy_2_atom = 2 + chain_id*n_ref_atoms
 
 data = open_dataset(filename)
 atoms_coordinates = data['coordinates']
@@ -28,10 +29,16 @@ atoms_dz_array = np.concatenate(
      axis=2)
 atoms_dz_array = drop_dz(coord_atoms_in_pore,atoms_dz_array, Pore)
 n_array = np.insert(compute_n(atoms_dz_array, Pore),0,0)
-n_fragments = 200
-n_msd = compute_msd(n_array, n_fragments)
-time_axis = np.arange(n_msd.size)
-plt.plot(time_axis, n_msd, 'bo')
+fragments = 200
+n_msd = compute_msd(n_array, fragments)
+drop_msd_points = 10
+vol_h2o = 2.99003322259e-23
+time_axis = np.arange(n_msd[drop_msd_points:].size)
+pf = (regresion_lineal(time_axis, n_msd[drop_msd_points:]))*vol_h2o/(2*timestep)
+print(f'{pf/1e-14:.4f}e-14')
+
+
+plt.plot(time_axis, n_msd[drop_msd_points:], 'bo')
 plt.show()
 
 
