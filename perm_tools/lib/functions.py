@@ -64,17 +64,17 @@ def compute_msd(n_array, fragments):
 
 
 def compute_n(atoms_dz_array, pore):
-    dn_array = (atoms_dz_array[:,:,3].sum(axis = 1))/pore.length[1:]
+    dn_array = (atoms_dz_array[:,:,3].sum(axis = 1))/pore.length
     n_array = np.cumsum(dn_array)
     return n_array
 
 
-def drop_dz(atoms_coordinates, atoms_dz_array, pore):
+def drop_dz(atoms_dz_array, pore):
     copy_dz_array = atoms_dz_array.copy()
-    distance_to_center = (((atoms_coordinates[:,:,0:2] - np.expand_dims(pore.xy_center, axis=1))**2).sum(axis = 2))**(1/2)
-    condition_1 = ((pore.low < atoms_coordinates[:,:,2].T) & (atoms_coordinates[:,:,2].T < pore.top)).T
-    condition_2 = (distance_to_center < pore.radius)
-    copy_dz_array[:,:,3][~(condition_1[1:] & condition_2[1:] | condition_1[:-1] & condition_2[:-1])] = 0
+    distance_to_center = (((atoms_dz_array[:,:,0:2] - np.expand_dims(pore.xy_center, axis=1))**2).sum(axis = 2))**(1/2)
+    condition_1 = ((pore.low >= atoms_dz_array[:,:,2].T) | (atoms_dz_array[:,:,2].T >= pore.top)).T
+    condition_2 = (distance_to_center >= pore.radius)
+    copy_dz_array[1:,:,3][((condition_1[1:] | condition_2[1:]) & (condition_1[:-1] | condition_2[:-1]))] = 0
     return copy_dz_array
 
 
@@ -90,7 +90,7 @@ def hacer_comparacion_un_solo_saque(atoms_coordinates, frame, atom_list,Pore):
     atom_coord = atoms_coordinates[frame,atom_list,:]
     distance_to_center = (((atom_coord[:,0:2] - pore_cylinder.xy_center)**2).sum(axis = 1))**(1/2)
     condition_1 = distance_to_center < pore_cylinder.radius
-    condition_2 = (pore_cylinder.low < atom_coord[:,2]) & (atom_coord[:,2] < pore_cylinder.top)
+    condition_2 = (pore_cylinder.low.min() < atom_coord[:,2]) & (atom_coord[:,2] < pore_cylinder.top.max())
     true_list = np.where((condition_1 & condition_2) == True)[0].tolist()
     filtered_atom_list = [atom_list[i] for i in true_list]
     return filtered_atom_list
