@@ -2,7 +2,7 @@ import perm_event.perm_event as perm_ev_calc
 import pandas as pd
 filename = 'perm.nc'
 chains = [0,1,2,3]
-chains_letter = ['A','C','B','D']
+chains_letter = ['A','B','C','D']
 (ref_z_1, ref_z_2, ref_xy_1, ref_xy_2) = (0,1,1,2)
 list_events_total = []
 for chain_id in chains:
