@@ -1,4 +1,4 @@
-from tkinter import N
+#from tkinter import N
 import pandas as pd
 from lib.functions import *
 
