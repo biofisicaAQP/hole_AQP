@@ -1,7 +1,7 @@
 from lib.classes import *
 from lib.functions import *
 import matplotlib.pyplot as plt
-def pf_calculator(filename, chain_id, ref_z_1_order, ref_z_2_order, ref_xy_1_order, ref_xy_2_order, pore_radius = 6, timestep = 1e-12):
+def pf_calculator(filename, chain_id, ref_z_1_order, ref_z_2_order, ref_xy_1_order, ref_xy_2_order,timestep, pore_radius = 6):
     n_ref_atoms = 3
     first_non_ref_atom = 12
     drop_msd_points = 10
@@ -19,7 +19,6 @@ def pf_calculator(filename, chain_id, ref_z_1_order, ref_z_2_order, ref_xy_1_ord
     
     Pore = pore_traject(atoms_coordinates, top_atom, low_atom, ref_xy_1_atom, ref_xy_2_atom, pore_radius)
     atom_list = list(range(first_non_ref_atom,total_atoms))
-
     compendio_atomos = atoms_inside_pore(atoms_coordinates, atom_list, Pore)
     coord_atoms_in_pore = atoms_coordinates[:,compendio_atomos,:]
     dz = coord_atoms_in_pore[1:,:,2] - coord_atoms_in_pore[:-1,:,2]
@@ -38,6 +37,6 @@ def pf_calculator(filename, chain_id, ref_z_1_order, ref_z_2_order, ref_xy_1_ord
     pf = (regresion_lineal(time_axis, n_msd[drop_msd_points:]))*vol_h2o/(2*timestep)
     #print(f'{pf/1e-14:.4f}e-14')
     msd_plot = plt.plot(time_axis, n_msd[drop_msd_points:], 'bo')
-    return (pf, msd_plot)
+    return (pf, msd_plot, compendio_atomos)
 
 

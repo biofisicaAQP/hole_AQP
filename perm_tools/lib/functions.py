@@ -1,4 +1,3 @@
-from matplotlib.pyplot import axis
 import netCDF4 as nc
 import numpy as np
 from lib import classes
@@ -12,10 +11,14 @@ def open_dataset(filename):
         Post: fn: data del tipo netCDF.
     '''
     fn = nc.Dataset(filename)
-    
     return fn
 
-
+def import_coords(data, start, stop=None):
+    if stop == None:
+        coords = data[start:,:,:]
+    else:
+        coords = data[start:stop,:,:]
+    return coords
 
 def get_z_top_low(atoms_coordinates, atom_1, atom_2):
     avg_atom1 = atoms_coordinates[:,atom_1,2].mean()
@@ -30,7 +33,7 @@ def get_z_top_low(atoms_coordinates, atom_1, atom_2):
 
 
 
-def pore_traject(atoms_coordinates,top_atom, low_atom, ref_xy_1_atom, ref_xy_2_atom, pore_radius = 6):
+def pore_traject(atoms_coordinates,top_atom, low_atom, ref_xy_1_atom, ref_xy_2_atom, pore_radius):
     '''
     Calcula la trayectoria del poro  
        
@@ -68,6 +71,22 @@ def compute_n(atoms_dz_array, pore):
     n_array = np.cumsum(dn_array)
     return n_array
 
+def filter_by_radius(atoms_coordinates,Pore):
+    resta = np.subtract(atoms_coordinates[:,:,0:2],np.expand_dims(Pore.xy_center, axis=1))
+    distance_to_center = np.power(((np.power(resta,2)).sum(axis = 2)),0.5)
+    #distance_to_center = (((atoms_coordinates[:,:,0:2] - np.expand_dims(Pore.xy_center, axis=1))**2).sum(axis = 2))**(1/2)
+    condition_1 = distance_to_center <= Pore.radius
+    filtered_array = atoms_coordinates[:,:,2][condition_1]
+    return filtered_array
+
+def compute_histogram(array,bins):
+    arr_hist, edges = np.histogram(array, bins=bins)
+    return (arr_hist,edges)
+
+
+def compute_density(arr_hist, edges,array_shape):
+    density = arr_hist/(array_shape*np.diff(edges))
+    return (density, edges[0:-1])
 
 def drop_dz(atoms_dz_array, pore):
     copy_dz_array = atoms_dz_array.copy()
